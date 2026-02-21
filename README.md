@@ -12,6 +12,7 @@ Ako se krugovi povežu tako da zatvore prostor od jedne ivice do druge, oni efek
 
 
 
+
 ### 🏗️ Modelovanje kroz teoriju grafova
 Da bismo efikasno pratili ove lance, krugove strukturiramo kao **graf**:
 - **Čvorovi**: Svaki krug predstavlja jedan čvor u grafu.
