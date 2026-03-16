@@ -1,77 +1,141 @@
-#include <vector>
 #include <cmath>
+#include <map>
+#include <cmath>
+#include <vector>
 #include <queue>
+#include <iostream>
+#include <unordered_set>
+#include <vector>
+
+void draw(int w, int h, std::vector<std::vector<int>> circles);
 
 using namespace std;
 
 class Solution {
 public:
+
+    bool intersectCircles(const vector<int>& c1, const vector<int>& c2) {
+        long long dx = (long long)c1[0] - c2[0];
+        long long dy = (long long)c1[1] - c2[1];
+        long long rSum = (long long)c1[2] + c2[2];
+        return (dx * dx + dy * dy) <= (rSum * rSum);
+    }
+
+    bool intersectInside(const vector<int>& c1, const vector<int>& c2, int xCorner, int yCorner) {
+        double dx = (double)c2[0] - c1[0];
+        double dy = (double)c2[1] - c1[1];
+        double d2 = dx * dx + dy * dy;
+        double d = sqrt(d2);
+
+        if (d < 1e-9) return true;
+
+        double r1 = c1[2];
+        double r2 = c2[2];
+
+        double a = (r1 * r1 - r2 * r2 + d2) / (2 * d);
+        double h2 = r1 * r1 - a * a;
+        double h = sqrt(max(0.0, h2));
+
+        double x0 = c1[0] + (a / d) * dx;
+        double y0 = c1[1] + (a / d) * dy;
+
+        double rx = -(dy * (h / d));
+        double ry = dx * (h / d);
+
+        double x1 = x0 + rx, y1 = y0 + ry;
+        double x2 = x0 - rx, y2 = y0 - ry;
+
+        return ((x1 >= 0 && x1 <= xCorner && y1 >= 0 && y1 <= yCorner) ||
+                (x2 >= 0 && x2 <= xCorner && y2 >= 0 && y2 <= yCorner));
+    }
+
     bool canReachCorner(int xCorner, int yCorner, vector<vector<int>>& circles) {
         int n = circles.size();
-        vector<vector<int>> adj(n);
-        vector<bool> visited(n, false);
+        vector<vector<int>> circle_graph(n);
         queue<int> q;
+        unordered_set<int> target_nodes;
+        vector<bool> visited(n, false);
 
         for (int i = 0; i < n; i++) {
-            long long x = circles[i][0], y = circles[i][1], r = circles[i][2];
 
-            // Da li krug direktno pokriva start ili cilj
-            if (x*x + y*y <= r*r || (x-xCorner)*(x-xCorner) + (y-yCorner)*(y-yCorner) <= r*r)
-                return false;
+            if (intersectCircles(circles[i], {0, 0, 0}) ||
+                intersectCircles(circles[i], {xCorner, yCorner, 0})) return false;
 
 
-            if ((x + r > 0 && x - r <= 0 && y >= 0 && y <= yCorner) ||
-            (y - r < yCorner && y + r >= yCorner && x >= 0 && x <= xCorner) ||
-            (x*x + (y-yCorner)*(y-yCorner) <= r*r)) {
-                    q.push(i);
-                    visited[i] = true;
-                }
+            if (intersectAboveD(circles[i], xCorner, yCorner)) {
+                q.push(i);
+                visited[i] = true;
+            }
 
-            // Pravljenje grafa
+
+            if (intersectBelowD(circles[i], xCorner, yCorner)) {
+                target_nodes.insert(i);
+            }
+
             for (int j = i + 1; j < n; j++) {
-                long long dx = x - circles[j][0];
-                long long dy = y - circles[j][1];
-                long long r_sum = r + circles[j][2];
-                if (dx*dx + dy*dy <= r_sum*r_sum) {
-                    long long x1 = circles[i][0], y1 = circles[i][1], r1 = circles[i][2];
-                    long long x2 = circles[j][0], y2 = circles[j][1], r2 = circles[j][2];
+                if (intersectCircles(circles[i], circles[j])) {
 
-                    if (x1 * r2 + x2 * r1 < (r1 + r2) * xCorner &&
-                        y1 * r2 + y2 * r1 < (r1 + r2) * yCorner) {
-                        adj[i].push_back(j);
-                        adj[j].push_back(i);
+                    if (intersectInside(circles[i], circles[j], xCorner, yCorner)) {
+                        circle_graph[i].push_back(j);
+                        circle_graph[j].push_back(i);
                     }
                 }
             }
         }
 
-        // BFS
         while (!q.empty()) {
-            int curr = q.front();
+            int i = q.front();
             q.pop();
 
-            long long x = circles[curr][0], y = circles[curr][1], r = circles[curr][2];
+            if (target_nodes.count(i)) return false;
 
-            if ((x - r < xCorner && x + r >= xCorner && y >= 0 && y <= yCorner)
-            || (y + r > 0 && y - r <= 0 && x >= 0 && x <= xCorner)
-            || (x-xCorner)*(x-xCorner)+y*y <= r*r) {
-                    return false;
-                }
-
-            for (int sused : adj[curr]) {
-                if (!visited[sused]) {
-                    visited[sused] = true;
-                    q.push(sused);
+            for (int neighbor : circle_graph[i]) {
+                if (!visited[neighbor]) {
+                    visited[neighbor] = true;
+                    q.push(neighbor);
                 }
             }
         }
-
         return true;
     }
-};
 
-int main()
-{
-    cout << "Hello world!" << endl;
+    bool intersectAboveD(const vector<int>& c, int xCorner, int yCorner) {
+        if (c[1] >= 0 && c[1] <= yCorner && (abs(c[0]) <= c[2])) return true; // Leva ivica
+        if (c[0] >= 0 && c[0] <= xCorner && (abs(c[1] - yCorner) <= c[2])) return true; // Gornja ivica
+        return false;
+    }
+
+    bool intersectBelowD(const vector<int>& c, int xCorner, int yCorner) {
+        if (c[0] >= 0 && c[0] <= xCorner && (abs(c[1]) <= c[2])) return true; // Donja ivica
+        if (c[1] >= 0 && c[1] <= yCorner && (abs(c[0] - xCorner) <= c[2])) return true; // Desna ivica
+        return false;
+    }
+};
+int main() {
+    Solution sol;
+
+    //Primer 1
+    vector<vector<int>> circles = {{1,4,1},{3,4,1},{5,4,1},{7,4,1}};
+    int xCorner = 8;
+    int yCorner = 8;
+
+    //Primer 2
+    //vector<vector<int>> circles = {{2,20,13},{20,2,13}};
+    //int xCorner = 15;
+    //int yCorner = 15;
+
+    //Primer 3
+    //vector<vector<int>> circles = {{2,1,1},{1,2,1}};
+    //int xCorner = 3;
+    //int yCorner = 3;
+
+    if (sol.canReachCorner(xCorner, yCorner, circles)) {
+        std::cout << "Putanja postoji!" << std::endl;
+    } else {
+        std::cout << "Putanja je blokirana!" << std::endl;
+    }
+
+    draw(xCorner,yCorner,circles);
+
     return 0;
 }

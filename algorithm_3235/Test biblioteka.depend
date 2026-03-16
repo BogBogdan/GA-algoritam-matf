@@ -1,0 +1,24 @@
+# depslib dependency file v1.0
+1773662591 source:c:\users\bogda\desktop\matf projekti\ga\ga-algoritam-matf\test biblioteka\main.cpp
+	<cmath>
+	<map>
+	<cmath>
+	<vector>
+	<queue>
+	<iostream>
+	<unordered_set>
+	<vector>
+
+1773487273 c:\raylib\raylib\src\raylib.h
+	<stdarg.h>
+	<stdbool.h>
+
+1773487273 c:\users\bogda\desktop\test_graphic\raylib.h
+	<stdarg.h>
+	<stdbool.h>
+
+1773670563 source:c:\users\bogda\desktop\matf projekti\ga\ga-algoritam-matf\test biblioteka\visual_test.cpp
+	"raylib.h"
+	<vector>
+	<algorithm>
+
