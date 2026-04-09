@@ -16,8 +16,11 @@
 					<Add directory="include" />
 				</Compiler>
 				<Linker>
-					<Add option="-lgdi32 -lwinmm" />
-					<Add library="../../../../../../../raylib/raylib/src/libraylib.a" />
+					<Add option="lib\libraylib.a" />
+					<Add option="-lopengl32" />
+					<Add option="-lgdi32" />
+					<Add option="-lwinmm" />
+					<Add library="lib/libraylib.a" />
 					<Add directory="C:/raylib/raylib/src" />
 				</Linker>
 			</Target>
@@ -41,8 +44,10 @@
 			<Add directory="../../../../test_graphic" />
 		</Compiler>
 		<Linker>
-			<Add option="-lraylib -lopengl32 -lgdi32 -lwinmm" />
-			<Add library="../../../../test_graphic/libraylib.a" />
+			<Add option="-lopengl32" />
+			<Add option="-lgdi32" />
+			<Add option="-lwinmm" />
+			<Add library="lib/libraylib.a" />
 		</Linker>
 		<Unit filename="include/visual_test.cpp.h" />
 		<Unit filename="main.cpp" />

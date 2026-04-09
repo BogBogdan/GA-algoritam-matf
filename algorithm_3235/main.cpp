@@ -7,7 +7,7 @@
 #include <unordered_set>
 #include <vector>
 
-void draw(int w, int h, std::vector<std::vector<int>> circles);
+void draw(int w, int h, std::vector<std::vector<int>> circles, bool ok);
 
 using namespace std;
 
@@ -129,13 +129,19 @@ int main() {
     //int xCorner = 3;
     //int yCorner = 3;
 
-    if (sol.canReachCorner(xCorner, yCorner, circles)) {
+    //Primer 4
+    //vector<vector<int>> circles = {{1,2,1},{3,2,1},{5,2,1},{7,2,1}, {3,5,1},{5,5,1},{7,5,1},{9,5,1}};
+    //int xCorner = 10;
+    //int yCorner = 10;
+
+    bool ok = sol.canReachCorner(xCorner, yCorner, circles);
+    if (ok) {
         std::cout << "Putanja postoji!" << std::endl;
     } else {
         std::cout << "Putanja je blokirana!" << std::endl;
     }
 
-    draw(xCorner,yCorner,circles);
+    draw(xCorner,yCorner,circles,ok);
 
     return 0;
 }
